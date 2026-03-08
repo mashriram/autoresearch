@@ -40,25 +40,26 @@ Each experiment runs on a single GPU. The training script runs for a **fixed tim
 
 ## Output format
 
-Once the script finishes it prints a summary like this:
+Once the script finishes it prints a visual summary, but more importantly, it exports a structured JSON artifact called `run_metrics.json` into the working directory.
 
-```
----
-val_bpb:          0.997900
-training_seconds: 300.1
-total_seconds:    325.9
-peak_vram_mb:     45060.2
-mfu_percent:      39.80
-total_tokens_M:   499.6
-num_steps:        953
-num_params_M:     50.3
-depth:            8
+Example `run_metrics.json`:
+```json
+{
+    "val_bpb": 0.9979,
+    "training_seconds": 300.1,
+    "total_seconds": 325.9,
+    "peak_vram_mb": 45060.2,
+    "mfu_percent": 39.8,
+    "total_tokens_M": 499.6,
+    "num_steps": 953,
+    "num_params_M": 50.3,
+    "depth": 8
+}
 ```
 
-Note that the script is configured to always stop after 5 minutes, so depending on the computing platform of this computer the numbers might look different. You can extract the key metric from the log file:
-
-```
-grep "^val_bpb:" run.log
+Note that the script is configured to always stop after 5 minutes. You can extract your key metrics trivially by reading this JSON file. Let Python handle parsing for numerical accuracy if necessary:
+```bash
+cat run_metrics.json
 ```
 
 ## Logging results
@@ -95,10 +96,11 @@ LOOP FOREVER:
 
 1. Look at the git state: the current branch/commit we're on
 2. Tune `train.py` with an experimental idea by directly hacking the code.
-3. git commit
-4. Run the experiment: `uv run train.py > run.log 2>&1` (redirect everything — do NOT use tee or let output flood your context)
-5. Read out the results: `grep "^val_bpb:\|^peak_vram_mb:" run.log`
-6. If the grep output is empty, the run crashed. Run `tail -n 50 run.log` to read the Python stack trace and attempt a fix. If you can't get things to work after more than a few attempts, give up.
+3. Clean the environment explicitly: `rm -f run_metrics.json`, to prevent reading old caches.
+4. git commit
+5. Run the experiment: `uv run train.py > run.log 2>&1` (redirect everything — do NOT use tee or let output flood your context)
+6. Read out the results natively from the structured output: `cat run_metrics.json`
+7. If the json file does not exist, the run crashed mid-execution. Run `tail -n 50 run.log` to read the Python stack trace and attempt a fix. If you can't get things to work after more than a few attempts, give up.
 7. Record the results in the tsv
 8. If val_bpb improved (lower), you "advance" the branch, keeping the git commit
 9. If val_bpb is equal or worse, you git reset back to where you started

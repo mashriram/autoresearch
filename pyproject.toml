@@ -7,11 +7,15 @@ requires-python = ">=3.10"
 dependencies = [
     "kernels>=0.11.7",
     "matplotlib>=3.10.8",
+    "mlflow>=3.10.1",
     "numpy>=2.2.6",
+    "optuna>=4.7.0",
     "pandas>=2.3.3",
     "pyarrow>=21.0.0",
     "requests>=2.32.0",
     "rustbpe>=0.1.0",
+    "setuptools>=82.0.0",
+    "temporalio>=1.23.0",
     "tiktoken>=0.11.0",
     "torch==2.9.1",
 ]
